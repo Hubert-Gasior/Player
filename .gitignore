@@ -1,0 +1,9 @@
+/.vscode
+/amcom.c
+/amcom.h
+/amcom_packets.h
+/build
+/build.bat
+/Cmake
+/CMakeLists.txt
+/Gcc
