@@ -84,26 +84,22 @@ float CalculateAngle(const position* StartPosition, const position* EndPosition)
 }
 
 float obstacle(const AMCOM_ObjectState* ObstacleList, const position* StartPosition , const position* EndPosition, const AMCOM_ObjectState* Player, uint8_t diameter, size_t size){
-    float Path = 0;
-    float PlayerRadius;
-    float ObstacleRadius;
+    float Path = CalculatePath(StartPosition, EndPosition);
+    float PlayerRadius = (25.0 + Player->hp)/2.0;
+    float ObstacleRadius = diameter/2.0;
+    float CombinedRadius = ObstacleRadius + PlayerRadius;
     position StartEnd;
     position StartCenter;
-    float StartEndSquaredLength = 0;
-    float t = 0;
-    position ClosestPoint;
-    float MinDistanceToCenter;
     position CurrentObstacle;
-    float CombinedRadius;
-    float overlap;
-    float chord;
+    position ClosestPoint;
+    float StartEndSquaredLength = 0;
+    float MinDistanceToCenter = 0;
+    float Overlap = 0;
+    float Chord = 0;
+    float t = 0;
 
-    Path = CalculatePath(StartPosition, EndPosition);
-    PlayerRadius = (25.0 + Player->hp)/2.0;
-    ObstacleRadius = diameter/2.0;
     StartEnd.x = EndPosition->x - StartPosition->x;
     StartEnd.y = EndPosition->y - StartPosition->y;
-    CombinedRadius = ObstacleRadius + PlayerRadius;
     
 
     for(size_t i = 0; i < size; i++){
@@ -124,12 +120,12 @@ float obstacle(const AMCOM_ObjectState* ObstacleList, const position* StartPosit
         MinDistanceToCenter = CalculatePath(&CurrentObstacle, &ClosestPoint);
 
         if(MinDistanceToCenter < CombinedRadius){
-            chord = 2.0 * sqrtf(CombinedRadius * CombinedRadius - MinDistanceToCenter * MinDistanceToCenter);
+            Chord = 2.0 * sqrtf(CombinedRadius * CombinedRadius - MinDistanceToCenter * MinDistanceToCenter);
         }
 
-        overlap += chord;
+        Overlap += Chord;
 
-        return overlap/Path;
+        return Overlap/Path;
     }
 }
 
@@ -142,24 +138,25 @@ void CalculateAlternativePaths(const AMCOM_ObjectState* List, const position* St
     float SecondPath = 0;
     float multiplier = 0;
 
-    FindClosestObjectOfType(List, StartPosition, &FirstObject, 1, size, 0);
-    FindClosestObjectOfType(List, StartPosition, &SecondObject, 1, size, 1);
+    FindClosestObjectOfType(List, StartPosition, &FirstObject, TRANSISTOR, size, 0);
+    FindClosestObjectOfType(List, StartPosition, &SecondObject, TRANSISTOR, size, 1);
 
     prev = *StartPosition;
     current = FirstObject;
     for(size_t i = 0; i < 3; i++){
-        multiplier = obstacle(GlueList, &prev, &current, Player, 200, GlueListSize);
+        multiplier = obstacle(GlueList, &prev, &current, Player, GLUE_DIAMETER, GlueListSize);
         FirstPath += (1.0 + multiplier * 20) + CalculatePath(&prev, &current);
         prev = current;
-        FindClosestObjectOfType(List, &prev, &current, 1, size, 0);
+        FindClosestObjectOfType(List, &prev, &current, TRANSISTOR, size, 0);
     }
 
     prev = *StartPosition;
     current = SecondObject;
     for(size_t i = 0; i < 3; i++){
-        SecondPath += CalculatePath(&prev, &current);
+        multiplier = obstacle(GlueList, &prev, &current, Player, GLUE_DIAMETER, GlueListSize);
+        SecondPath += (1.0 + multiplier * 20) + CalculatePath(&prev, &current);
         prev = current;
-        FindClosestObjectOfType(List, &prev, &current, 1, size, 0);
+        FindClosestObjectOfType(List, &prev, &current, TRANSISTOR, size, 0);
     }
 
     if(FirstPath < SecondPath){

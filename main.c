@@ -15,20 +15,6 @@
 #include "amcom.h"
 #include "amcom_packets.h"
 
-typedef enum {
-    PLAYER = 0,
-    TRANSISTOR = 1,
-    SPARK = 2,
-    GLUE = 3,
-    DEFAULT = 4
-
-}ObjectType;
-
-typedef enum {
-    SPARK_DIAMETER = 25,
-    GLUE_DIAMETER = 200
-}ObjectDiameter;
-
 //static AMCOM_ObjectState SparkList[5] = {{5, 0, 0, 0.0f, 0.0f}};
 
 static AMCOM_ObjectState TransistorList[50];

@@ -8,6 +8,20 @@ typedef struct {
     float y;
 }position;
 
+typedef enum {
+    PLAYER = 0,
+    TRANSISTOR = 1,
+    SPARK = 2,
+    GLUE = 3,
+    DEFAULT = 4
+
+}ObjectType;
+
+typedef enum {
+    SPARK_DIAMETER = 25,
+    GLUE_DIAMETER = 200
+}ObjectDiameter;
+
 float CalculatePath(const position* object_1, const position* object_2);
 
 AMCOM_ObjectState FindPosition(const AMCOM_ObjectState* List, position* Object, const uint8_t PlayerNo, uint8_t ObjectType, size_t size);
