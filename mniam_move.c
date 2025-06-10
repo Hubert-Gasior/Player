@@ -20,6 +20,7 @@ uint8_t IsAlive(const AMCOM_ObjectState* ObjectList, const position* object, siz
 
 AMCOM_ObjectState FindPosition(const AMCOM_ObjectState* ObjectList, position* Object, uint8_t ObjectNumber, uint8_t ObjectType, size_t size) {
 	AMCOM_ObjectState FoundObject;
+    FoundObject.hp = 0;
 
     for (size_t i = 0; i < size; i++) {
 		if(ObjectList[i].objectType == ObjectType && ObjectList[i].objectNo == ObjectNumber) {
@@ -164,4 +165,35 @@ void CalculateAlternativePaths(const AMCOM_ObjectState* List, const position* St
     }
     
     *EndPosition = SecondObject;
+}
+
+AMCOM_ObjectState FindBestTarget(const AMCOM_ObjectState* ObjectList, const AMCOM_ObjectState* Player, position* Target, size_t size){
+    AMCOM_ObjectState FoundTarget;
+    position TargetPosition;
+    AMCOM_ObjectState CandidateTarget;
+    position PlayerPosition;
+    float path = 0;
+    float shortestPath = 0;
+
+    FindPosition(ObjectList, &PlayerPosition, Player->objectNo, PLAYER, size);
+
+    for(size_t i = 0; i < size; i++){
+        if(i == Player->objectNo){
+            continue;
+        }
+
+        CandidateTarget = FindPosition(ObjectList, &TargetPosition, i, PLAYER, size);
+        if(0 == CandidateTarget.hp){
+            continue;
+        }
+
+        path = CalculatePath(&PlayerPosition, &TargetPosition);
+        if(CandidateTarget.hp < Player->hp && (shortestPath > path || 0 == shortestPath)){
+            shortestPath = path;
+            *Target = TargetPosition;
+            FoundTarget = CandidateTarget;
+        }
+    }
+
+    return FoundTarget;
 }

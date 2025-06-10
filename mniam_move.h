@@ -36,4 +36,6 @@ void CalculateAlternativePaths(const AMCOM_ObjectState* List, const position* St
 
 uint8_t IsAlive(const AMCOM_ObjectState* List, const position* object, size_t size);
 
+AMCOM_ObjectState FindBestTarget(const AMCOM_ObjectState* ObjectList, const AMCOM_ObjectState* Player, position* Target, size_t size);
+
 #endif

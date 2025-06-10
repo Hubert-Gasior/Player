@@ -137,20 +137,53 @@ void amPacketHandler(const AMCOM_Packet* packet, void* userContext) {
         break;
     case AMCOM_MOVE_REQUEST:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    float angle = 0;
-    position PlayerPosition;
+        float angle = 0;
+        position PlayerPosition;
+        position TargetPosition;
+        uint8_t NoMoreFood = 0;
 
-    Player = FindPosition(PlayerList, &PlayerPosition, PlayerNumber, PLAYER, PlayerListSize);
-    printf("Player\nX: %f Y:%f\n", PlayerPosition.x, PlayerPosition.y);
-    //FindClosestObjectOfType(TransistorList, &PlayerPosition, &Transistor, TRANSISTOR, TransistorListSize, 0);
-    if(!IsAlive(TransistorList, &Transistor, TransistorListSize)){
-        CalculateAlternativePaths(TransistorList, &PlayerPosition, &Transistor, TransistorListSize, GlueList, &Player, GlueListSize);
-    }
-    printf("Transistor\nX: %f Y:%f\n", Transistor.x, Transistor.y);
 
-    //angle = (1.0f + obstacle(SparkList, &PlayerPosition, &transistor, &Player, 25, SparkListSize)) * CalculateAngle(&PlayerPosition, &transistor);
-    angle = CalculateAngle(&PlayerPosition, &Transistor);
-    printf("angle: %f\n", angle);
+        Player = FindPosition(PlayerList, &PlayerPosition, PlayerNumber, PLAYER, PlayerListSize);
+        printf("Player\nX: %f Y:%f\n", PlayerPosition.x, PlayerPosition.y);
+        //FindClosestObjectOfType(TransistorList, &PlayerPosition, &Transistor, TRANSISTOR, TransistorListSize, 0);
+        if(!IsAlive(TransistorList, &Transistor, TransistorListSize)){
+            CalculateAlternativePaths(TransistorList, &PlayerPosition, &Transistor, TransistorListSize, GlueList, &Player, GlueListSize);
+        }
+        printf("Transistor\nX: %f Y:%f\n", Transistor.x, Transistor.y);
+        angle =  CalculateAngle(&PlayerPosition, &Transistor);
+
+        for(size_t i = 0; i < TransistorListSize; i++){
+            if(0 != TransistorList[i].hp){
+                NoMoreFood = 0;
+                break;
+            }
+            NoMoreFood = 1;
+        }
+
+        if(NoMoreFood){
+            FindBestTarget(PlayerList, &Player, &TargetPosition, PlayerListSize);
+            angle = CalculateAngle(&PlayerPosition, &TargetPosition);
+        }
+        /*if(0 != obstacle(SparkList, &PlayerPosition, &Transistor, &Player, SPARK_DIAMETER, SparkListSize)){
+            for(int8_t i = -9; i <= 9; i++){
+                float delta = i *(M_PI /12);
+                float candidateAngle = angle + delta;
+
+                position ClearPathObject;
+                ClearPathObject.x = Transistor.x + 100 * cosf(candidateAngle);
+                ClearPathObject.y = Transistor.y + 100 * sinf(candidateAngle);
+
+                if(0 != obstacle(SparkList, &PlayerPosition, &ClearPathObject, &Player, SPARK_DIAMETER, SparkListSize)){
+                    angle = candidateAngle;
+                    break;
+                }
+            }
+        }*/
+        
+            
+        //angle =  CalculateAngle(&PlayerPosition, &Transistor);
+        //angle = CalculateAngle(&PlayerPosition, &Transistor);
+        printf("angle: %f\n", angle);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         AMCOM_MoveResponsePayload MoveResponse;
